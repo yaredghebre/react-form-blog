@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextInput from './TextInput';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -9,12 +9,16 @@ const Main = () => {
   const [postsList, setPostsList] = useState([]);
   const [formData, setFormData] = useState(initialInput);
 
+  useEffect(() => {
+    const savedPosts = localStorage.getItem('posts');
+    if (savedPosts) {
+      setPostsList(JSON.parse(savedPosts));
+    }
+  }, []);
+
   const updateFormData = (newValue, inputField) => {
-    const newFormData = { ...formData };
-
-    newFormData[inputField] = newValue;
-
-    setFormData(newFormData);
+    // const newFormData = { ...formData };
+    setFormData((prevData) => ({ ...prevData, [inputField]: newValue }));
   };
 
   const handleFormSubmit = (e) => {
@@ -26,7 +30,11 @@ const Main = () => {
         title: formData.title,
       };
 
-      setPostsList([...postsList, newPost]);
+      setPostsList((prevPostsList) => {
+        const newPostsList = [...prevPostsList, newPost];
+        localStorage.setItem('posts', JSON.stringify(newPostsList));
+        return newPostsList;
+      });
 
       setFormData(initialInput);
     }
@@ -37,7 +45,11 @@ const Main = () => {
   };
 
   const deletePost = (deleteId) => {
-    setPostsList(postsList.filter((post) => post.id !== deleteId));
+    setPostsList((prevPostsList) => {
+      const updatedPosts = prevPostsList.filter((post) => post.id !== deleteId);
+      localStorage.setItem('posts', JSON.stringify(updatedPosts));
+      return updatedPosts;
+    });
   };
 
   return (
@@ -58,7 +70,7 @@ const Main = () => {
             ></TextInput>
 
             {/* Form Buttons */}
-            <div className="flex gap-6">
+            <div className="mt-5 flex gap-6">
               <button
                 className="rounded-lg border-2 bg-green-400 px-4 py-3 hover:bg-green-600"
                 type="submit"
