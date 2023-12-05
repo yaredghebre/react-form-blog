@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TextInput from './TextInput';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 const Main = () => {
   const initialInput = {
@@ -8,6 +9,7 @@ const Main = () => {
   };
   const [postsList, setPostsList] = useState([]);
   const [formData, setFormData] = useState(initialInput);
+  const [editPost, setEditPost] = useState(null);
 
   useEffect(() => {
     const savedPosts = localStorage.getItem('posts');
@@ -55,7 +57,7 @@ const Main = () => {
   return (
     <div>
       <main className="min-h-screen bg-gray-300 py-20">
-        <div className="container mx-auto rounded-lg border-4 border-green-600 bg-green-300 p-7">
+        <div className="container mx-auto w-1/2 rounded-lg border-4 border-green-600 bg-green-300 p-7">
           {/* Form Body */}
           <form
             className=""
@@ -91,11 +93,23 @@ const Main = () => {
           <div className="mt-5">
             <ul>
               {postsList.map((post) => (
-                <li key={post.id} className="flex w-full justify-between py-4">
+                <li
+                  key={post.id}
+                  className="flex w-full justify-between border-b-2 border-gray-900 px-2 py-4 text-2xl font-bold"
+                >
                   {post.title}
-                  <button onClick={() => deletePost(post.id)}>
-                    <DeleteIcon />
-                  </button>
+                  <div className="flex gap-2">
+                    <button className="duration-150 hover:scale-125">
+                      <EditIcon fontSize="large" className="text-blue-500" />
+                    </button>
+                    <button className="duration-150 hover:scale-125">
+                      <DeleteIcon
+                        fontSize="large"
+                        className="text-red-500"
+                        onClick={() => deletePost(post.id)}
+                      />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
