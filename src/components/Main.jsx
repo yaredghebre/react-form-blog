@@ -42,6 +42,7 @@ const Main = () => {
   };
 
   const handleFormReset = (e) => {
+    setEditingPost('');
     setFormData(initialInput);
   };
 
