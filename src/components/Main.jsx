@@ -9,7 +9,7 @@ const Main = () => {
   };
   const [postsList, setPostsList] = useState([]);
   const [formData, setFormData] = useState(initialInput);
-  const [editPost, setEditPost] = useState(null);
+  const [editingPost, setEditingPost] = useState('');
 
   useEffect(() => {
     const savedPosts = localStorage.getItem('posts');
@@ -19,7 +19,6 @@ const Main = () => {
   }, []);
 
   const updateFormData = (newValue, inputField) => {
-    // const newFormData = { ...formData };
     setFormData((prevData) => ({ ...prevData, [inputField]: newValue }));
   };
 
@@ -54,6 +53,33 @@ const Main = () => {
     });
   };
 
+  const editPost = (idToEdit) => {
+    const post = postsList.find((post) => post.id === idToEdit);
+
+    if (!post) {
+      return;
+    }
+
+    setEditingPost(idToEdit);
+
+    setFormData({
+      title: post.title,
+    });
+  };
+
+  const updatePost = () => {
+    const updatedPostsList = postsList.map((post) =>
+      post.id === editingPost ? { ...post, title: formData.title } : post,
+    );
+
+    setPostsList(updatedPostsList);
+    localStorage.setItem('posts', JSON.stringify(updatedPostsList));
+    setEditingPost('');
+    setFormData(initialInput);
+  };
+
+  const isEditing = editingPost !== '';
+
   return (
     <div>
       <main className="min-h-screen bg-gray-300 py-20">
@@ -73,19 +99,37 @@ const Main = () => {
 
             {/* Form Buttons */}
             <div className="mt-5 flex gap-6">
-              <button
-                className="rounded-lg border-2 bg-green-400 px-4 py-3 hover:bg-green-600"
-                type="submit"
-              >
-                Salva
-              </button>
-
-              <button
-                className="rounded-lg border-2 bg-red-400 px-4 py-3 hover:bg-red-600"
-                type="reset"
-              >
-                Annulla
-              </button>
+              {isEditing ? (
+                <>
+                  <button
+                    className="rounded-lg border-2 bg-blue-400 px-4 py-3 hover:bg-blue-600"
+                    onClick={updatePost}
+                  >
+                    Update
+                  </button>
+                  <button
+                    className="rounded-lg border-2 bg-gray-400 px-4 py-3 hover:bg-gray-600"
+                    onClick={handleFormReset}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="rounded-lg border-2 bg-green-400 px-4 py-3 hover:bg-green-600"
+                    type="submit"
+                  >
+                    Salva
+                  </button>
+                  <button
+                    className="rounded-lg border-2 bg-red-400 px-4 py-3 hover:bg-red-600"
+                    type="reset"
+                  >
+                    Annulla
+                  </button>
+                </>
+              )}
             </div>
           </form>
 
@@ -97,11 +141,28 @@ const Main = () => {
                   key={post.id}
                   className="flex w-full justify-between border-b-2 border-gray-900 px-2 py-4 text-2xl font-bold"
                 >
-                  {post.title}
+                  {isEditing && editingPost === post.id ? (
+                    <TextInput
+                      name="title"
+                      placeholder="Titolo del Post"
+                      value={formData.title}
+                      onValueChange={(newValue) =>
+                        updateFormData(newValue, 'title')
+                      }
+                    />
+                  ) : (
+                    post.title
+                  )}
                   <div className="flex gap-2">
-                    <button className="duration-150 hover:scale-125">
-                      <EditIcon fontSize="large" className="text-blue-500" />
-                    </button>
+                    {!isEditing || editingPost !== post.id ? (
+                      <button className="duration-150 hover:scale-125">
+                        <EditIcon
+                          fontSize="large"
+                          className="text-blue-500"
+                          onClick={() => editPost(post.id)}
+                        />
+                      </button>
+                    ) : null}
                     <button className="duration-150 hover:scale-125">
                       <DeleteIcon
                         fontSize="large"
